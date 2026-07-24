@@ -1,0 +1,25 @@
+# Vercel does NOT read .gitignore — without this it uploads the whole directory
+# and dies on the 145MB zip (single-file limit is 100MB).
+#
+# Only index.html, vercel.json and zetwal-film/frames/ are needed to serve the
+# site. Everything below is local source material or tooling.
+
+# Raw film source: Seedance clips, keyframes, encoded masters (~108MB)
+zetwal-film/assets/
+
+# Superseded 480p draft frame sequence (~17MB)
+zetwal-film/frames-draft/
+
+# Project archives
+*.zip
+
+# Previous design iteration
+_archive/
+
+# Local dev server — Vercel serves the static files itself
+server.js
+
+# Tooling / local config
+.claude/
+node_modules/
+.git/

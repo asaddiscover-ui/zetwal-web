@@ -34,6 +34,17 @@ Key implementation details, all measured rather than assumed:
 Measured result: **p95 frame time 22ms**, one frame over 50ms across a full-page
 scroll (down from p95 41.8ms on the first build).
 
+## Cache policy
+
+`vercel.json` sets this deliberately (the file carries no comments — Vercel's
+schema rejects unknown keys, including `//`):
+
+- `zetwal-film/frames/*` → `immutable, max-age=1y`. The frames never change once
+  deployed and each build gets its own URL, so a repeat visit must not re-fetch
+  20MB.
+- `/` → `max-age=0, must-revalidate`. Otherwise a redeploy never reaches anyone
+  who has already visited.
+
 ## Layout
 
 ```

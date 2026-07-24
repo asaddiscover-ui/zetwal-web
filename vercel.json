@@ -1,16 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": ".",
   "cleanUrls": true,
   "headers": [
     {
-      "//": "The 301 film frames never change once deployed — each build gets its own immutable URL, so they can be cached hard at the edge. This is what keeps a repeat visit from re-fetching 20MB.",
       "source": "/zetwal-film/frames/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
-      "//": "HTML must always revalidate or a redeploy won't reach people who have already visited.",
       "source": "/",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
