@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zetwal AI — The studio, in your pocket</title>
+<meta name="description" content="Record, AI-enhance and mix music from your phone. Voice isolation, noise reduction and text-to-beat generation. Studio-grade audio powered by ElevenLabs.">
+<meta name="theme-color" content="#0a0806">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1176 1070'%3E%3Crect width='1176' height='1070' fill='%230a0806'/%3E%3Cpath fill='%23e9a63c' d='M1137 426c-12-8-24-17-36-25-17-12-34-24-51-36-26-18-51-36-77-54-11-8-23-16-34-24l29-124L1007 0l-26 20c-5 4-9 9-14 12-21 18-43 35-65 53-20 16-41 33-61 49-20 16-40 33-60 49-1 1-8 7-9 7-20-12-41-23-62-35-29-16-57-35-87-50L516 45c34 70 69 141 103 211 7 14 13 29 21 43 23-9 45-21 68-29 12-4 25-8 37-9-13 7-26 13-39 20-33 17-63 35-94 55-29 18-53 36-80 57-23 18-45 37-66 57-19 19-37 38-55 58-22 25-40 50-58 77-26 38-46 74-64 116-29 67-50 138-57 211-2 21-4 49-3 70 0 1 0 5 2 5 0-1 0-2 1-4 17-38 36-75 58-111 19-32 41-64 64-94 18-23 38-46 58-68 17-19 36-37 55-54 20-18 41-36 63-52 26-20 55-39 83-56 30-18 62-35 94-49 24-11 49-21 74-29 8-3 18-6 27-8 1 0 3-1 3 1-13 5-25 12-37 19-17 10-35 19-52 30 16 25 33 48 50 72 21 31 43 61 64 92 13 19 26 39 40 57 2-12 1-25 1-38 1-52 4-105 5-157 1-25 0-51 2-76h16c6 0 13-1 19-1h24c8 0 16-1 24-1 26-1 52-2 78-2h5c21 1 41-2 62-1 10 0 21-1 31-1h6c9 0 18 0 27-1-13-9-26-18-39-27Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   ZETWAL AI — "THE ROOM IN YOUR HAND"
+   The film is real footage, chained shot-to-shot and scrubbed on canvas.
+   The page is the player.
+   ========================================================================== */
+:root{
+  --gold:#e9a63c; --gold-l:#f6d99e; --gold-d:#8a6320;
+  --ink:#0a0806; --seam:#2d2012; --coal:#141010;   /* seam sampled from the master's final frame */
+  --paper:#f7f3ec; --paper-d:#e4ddd0;
+  --disp:"Bricolage Grotesque",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --sans:"Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--gold);color:#000}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.wrap{width:min(1240px,90vw);margin-inline:auto}
+.mono{font-family:var(--mono);font-size:.63rem;letter-spacing:.28em;text-transform:uppercase}
+
+/* ---------- BOLD display type ---------- */
+.huge{
+  font-family:var(--disp);font-weight:800;line-height:.86;
+  letter-spacing:-.035em;font-size:clamp(3rem,11vw,10.5rem);
+  text-transform:uppercase;
+}
+.big{
+  font-family:var(--disp);font-weight:800;line-height:.92;
+  letter-spacing:-.03em;font-size:clamp(2.2rem,6vw,5rem);
+  text-transform:uppercase;
+}
+.mid{font-family:var(--disp);font-weight:600;font-size:clamp(1.3rem,2.4vw,2rem);line-height:1.1;letter-spacing:-.02em}
+.gold{color:var(--gold)}
+
+/* ---------- header ---------- */
+header{
+  position:fixed;inset:0 0 auto 0;z-index:70;display:flex;align-items:center;
+  justify-content:space-between;padding:1rem clamp(1rem,4vw,2.4rem);
+  color:var(--paper);transition:color .45s ease;
+}
+header.on-light{color:#0a0806}
+.brand svg{height:40px;width:auto}
+.nav{display:flex;gap:1.9rem}
+.nav a{opacity:.7;transition:opacity .3s}
+.nav a:hover{opacity:1}
+.cta-btn{
+  font-family:var(--mono);font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;
+  background:var(--gold);color:#0a0806;padding:.7rem 1.3rem;border-radius:999px;
+  font-weight:500;transition:transform .3s,background .3s;
+}
+.cta-btn:hover{background:var(--gold-l);transform:translateY(-1px)}
+@media(max-width:900px){.nav{display:none}}
+
+/* ---------- loader ---------- */
+#loader{
+  position:fixed;inset:0;z-index:200;background:var(--ink);
+  display:grid;place-content:center;gap:1.4rem;justify-items:center;
+  transition:opacity .7s ease,visibility .7s;
+}
+#loader.done{opacity:0;visibility:hidden}
+#prewarm{position:fixed;top:0;left:0;z-index:-1;pointer-events:none;opacity:.002;
+  font-family:var(--disp);font-weight:800;font-size:6.5rem;line-height:1;white-space:nowrap}
+#loader .bar{width:min(300px,60vw);height:1px;background:rgba(247,243,236,.16);overflow:hidden}
+#loader .bar i{display:block;height:100%;width:0;background:var(--gold)}
+#loader .pct{font-family:var(--mono);font-size:.62rem;letter-spacing:.3em;color:var(--gold)}
+
+/* ---------- FILM ---------- */
+#film{position:relative;height:850vh;background:var(--ink)}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--ink)}
+#frames{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vig{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 66% at 50% 48%,transparent 42%,rgba(0,0,0,.5) 82%,rgba(0,0,0,.88) 100%)}
+.seamfade{position:absolute;inset:auto 0 0 0;height:44vh;pointer-events:none;opacity:0;
+  background:linear-gradient(to bottom,transparent,var(--seam) 90%)}
+
+/* ---------- beats ---------- */
+.beats{position:absolute;inset:0;pointer-events:none}
+.beat{position:absolute;left:clamp(1.1rem,6vw,5.5rem);top:50%;width:min(620px,86vw);opacity:0;will-change:opacity,transform}
+.beat::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  left:-18vw;top:50%;transform:translateY(-50%);width:78vw;height:130vh;
+  background:radial-gradient(ellipse 56% 42% at 26% 50%,
+    rgba(10,8,6,.96) 0%,rgba(10,8,6,.88) 36%,rgba(10,8,6,.5) 56%,rgba(10,8,6,0) 76%);
+}
+.beat .mono{color:var(--gold);display:block;margin-bottom:1.1rem}
+.beat p{color:#cbc2b2;max-width:44ch;margin-top:1.2rem;font-size:clamp(.95rem,1.3vw,1.08rem)}
+.beat.center{left:50%;width:min(1000px,90vw);text-align:center}
+.beat.center::before{left:-11vw;width:122vw;
+  background:radial-gradient(ellipse 50% 44% at 50% 50%,rgba(10,8,6,.9) 0%,rgba(10,8,6,.6) 46%,rgba(10,8,6,0) 76%)}
+.beat.center p{margin-inline:auto}
+.hero-mark{width:clamp(84px,10vw,128px);margin:0 auto 1.8rem}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.5rem}
+.beat.center .chips{justify-content:center}
+.chip{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid rgba(233,166,60,.36);color:var(--gold-l);padding:.4rem .75rem;border-radius:999px}
+.powered{display:flex;align-items:center;gap:.6rem;margin-top:1.5rem;color:#a89c88}
+.powered svg{height:13px;width:auto}
+
+/* Narrow screens: copy runs nearly full width, so the left-anchored ellipse above
+   cannot protect it — the footage cuts straight through the headline. Drop the copy
+   into the lower band and hold the film back with a full-width gradient.
+   MUST stay after the base .beat rules: a media query adds no specificity, so if
+   this sits earlier in the sheet the desktop rule simply wins on source order. */
+@media(max-width:860px){
+  .beat{top:auto;bottom:6vh;transform:none;width:88vw}
+  /* Box is exactly the viewport so the stops read directly as vh from the bottom:
+     solid under the copy (~0-40vh), gone by 70vh so the film still plays above it. */
+  .beat::before{
+    left:-6vw;width:112vw;height:100vh;top:auto;bottom:0;transform:none;
+    background:linear-gradient(to top,
+      rgba(10,8,6,.97) 0%,rgba(10,8,6,.94) 40%,rgba(10,8,6,.55) 56%,rgba(10,8,6,0) 72%);
+  }
+  .beat p{max-width:none}
+  .beat.center{top:50%;bottom:auto;width:92vw}
+  .beat.center::before{
+    left:-6vw;width:112vw;height:150vh;top:50%;bottom:auto;transform:translateY(-50%);
+    background:radial-gradient(ellipse 62% 40% at 50% 50%,
+      rgba(10,8,6,.92) 0%,rgba(10,8,6,.72) 46%,rgba(10,8,6,0) 80%);
+  }
+}
+
+/* ---------- readout ---------- */
+.readout{position:fixed;left:clamp(1rem,4vw,2.4rem);bottom:clamp(1.1rem,3vw,1.9rem);z-index:65;
+  display:flex;align-items:center;gap:.8rem;color:#8f8574;opacity:0;transition:opacity .5s;pointer-events:none}
+.readout .track{width:120px;height:1px;background:rgba(247,243,236,.18);position:relative}
+.readout .track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--gold);display:block}
+.readout .pc{color:var(--gold);min-width:3.4em}
+
+/* ---------- PAPER — the hard cut ---------- */
+.paper{background:var(--paper);color:var(--ink);position:relative;z-index:2}
+.paper .lead{max-width:26ch}
+.paper-inner{padding:clamp(5rem,13vw,11rem) 0}
+.rule{height:1px;background:rgba(10,8,6,.16);margin:clamp(2.4rem,5vw,4rem) 0}
+.two{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(2rem,5vw,5rem);align-items:end}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.paper p.body{font-size:clamp(1rem,1.4vw,1.15rem);color:#3f382e;max-width:52ch}
+
+/* ---------- feature rows ---------- */
+.frow{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3vw,3rem);align-items:baseline;
+  padding:clamp(1.5rem,3vw,2.4rem) 0;border-top:1px solid rgba(10,8,6,.16);transition:padding-left .5s ease}
+.frow:hover{padding-left:1.2rem}
+.frow .n{font-family:var(--mono);font-size:.62rem;color:#8a7f6d;letter-spacing:.2em}
+.frow h3{font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:-.02em;
+  font-size:clamp(1.5rem,3.4vw,2.7rem);line-height:1}
+.frow p{color:#4a4238;font-size:.95rem;max-width:40ch;margin-top:.5rem}
+.frow .tag{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-d);white-space:nowrap}
+@media(max-width:760px){.frow{grid-template-columns:1fr}.frow .tag{display:none}}
+
+/* ---------- the device ---------- */
+.device-sec{background:var(--coal);padding:clamp(5rem,12vw,9rem) 0;overflow:hidden}
+.device-grid{display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,6vw,6rem);align-items:center}
+@media(max-width:940px){.device-grid{grid-template-columns:1fr}}
+.phone{
+  width:min(300px,74vw);aspect-ratio:9/19.5;border-radius:38px;position:relative;
+  background:linear-gradient(160deg,#241c14,#0d0a07);
+  border:1px solid rgba(233,166,60,.22);
+  /* Tighter blur radii than they look like they need: a 100px shadow over a
+     300x650 box was a ~170ms rasterisation spike the first time it scrolled in. */
+  box-shadow:0 32px 56px -24px rgba(0,0,0,.9),0 0 48px -18px rgba(233,166,60,.28);
+  padding:13px;margin-inline:auto;transform:translateZ(0);
+}
+.screen{width:100%;height:100%;border-radius:27px;background:#080605;overflow:hidden;position:relative;
+  display:flex;flex-direction:column}
+.scr-top{padding:1rem .95rem .5rem;display:flex;justify-content:space-between;align-items:center}
+.scr-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 9px var(--gold)}
+#uiwave{width:100%;flex:1;display:block}
+.scr-faders{padding:.6rem .95rem 1.1rem;display:flex;flex-direction:column;gap:.5rem}
+.fader{display:flex;align-items:center;gap:.5rem}
+.fader .lbl{font-family:var(--mono);font-size:.42rem;letter-spacing:.14em;color:#7d7263;width:34px}
+.fader .rail{flex:1;height:2px;background:rgba(247,243,236,.13);position:relative;border-radius:2px}
+.fader .fill{position:absolute;inset:0 auto 0 0;background:var(--gold);border-radius:2px}
+.fader .knob{position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:var(--gold-l);
+  transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(233,166,60,.8)}
+.disclaimer{font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;
+  color:#6f6555;margin-top:1.4rem;text-align:center}
+
+/* ---------- library ---------- */
+#library{background:var(--ink);border-block:1px solid rgba(247,243,236,.09);position:relative}
+.libstage{height:100vh;display:flex;align-items:center;overflow:hidden}
+.libtrack{display:flex;gap:1.2rem;padding-inline:10vw;width:max-content;align-items:center;will-change:transform}
+.bcard{width:clamp(215px,23vw,290px);flex:0 0 auto;background:var(--coal);
+  border:1px solid rgba(247,243,236,.09);padding:1.35rem;border-radius:14px}
+.bcard .wf{height:46px;display:flex;align-items:center;gap:2px;margin-bottom:1rem}
+.bcard .wf i{flex:1;background:var(--gold);opacity:.55;border-radius:1px}
+.bcard h4{font-family:var(--disp);font-weight:800;text-transform:uppercase;font-size:1.15rem;letter-spacing:-.01em}
+.bcard .meta{font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:#8f8574;margin-top:.35rem}
+.libhead{position:absolute;top:clamp(2rem,6vw,4rem);left:0;right:0;z-index:2;pointer-events:none}
+
+/* ---------- stats / pricing / cta ---------- */
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,3vw,3rem)}
+@media(max-width:760px){.statgrid{grid-template-columns:1fr}}
+.stat{border-top:1px solid rgba(10,8,6,.18);padding-top:1.3rem}
+.stat .num{font-family:var(--disp);font-weight:800;font-size:clamp(3rem,8vw,6.5rem);line-height:.9;letter-spacing:-.04em}
+.stat .lbl{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#6b6250;margin-top:.7rem}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:900px){.plans{grid-template-columns:1fr}}
+.plan{border:1px solid rgba(10,8,6,.18);border-radius:16px;padding:clamp(1.6rem,3vw,2.3rem);display:flex;flex-direction:column;gap:1rem}
+.plan.hot{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.plan .pn{font-family:var(--mono);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-d)}
+.plan.hot .pn{color:var(--gold)}
+.plan .amt{font-family:var(--disp);font-weight:800;font-size:2.6rem;line-height:1;letter-spacing:-.03em}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;font-size:.9rem;color:#4a4238}
+.plan.hot ul{color:#b8ae9c}
+.plan li::before{content:"→ ";color:var(--gold-d)}
+.plan.hot li::before{color:var(--gold)}
+.endcta{background:var(--ink);text-align:center;padding:clamp(6rem,15vw,12rem) 0}
+.stores{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:2.2rem}
+.store{display:flex;align-items:center;gap:.65rem;border:1px solid rgba(247,243,236,.2);
+  padding:.8rem 1.4rem;border-radius:999px;transition:border-color .3s,background .3s}
+.store:hover{border-color:var(--gold);background:rgba(233,166,60,.07)}
+.store svg{height:19px;width:auto}
+.store .s1{font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:#8f8574}
+.store .s2{font-size:.9rem}
+footer{background:var(--ink);border-top:1px solid rgba(247,243,236,.1);padding:clamp(3rem,6vw,5rem) 0 2rem}
+.fgrid{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.fcol h5{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem}
+.fcol a{display:block;font-size:.88rem;color:#8f8574;padding:.25rem 0;transition:color .3s}
+.fcol a:hover{color:var(--paper)}
+.socials{display:flex;gap:.7rem;margin-top:1rem}
+.socials a{width:34px;height:34px;border:1px solid rgba(247,243,236,.16);border-radius:50%;
+  display:grid;place-items:center;color:#8f8574;transition:color .3s,border-color .3s}
+.socials a:hover{color:var(--gold);border-color:var(--gold)}
+.socials svg{width:15px;height:15px}
+.fbot{margin-top:2.6rem;padding-top:1.3rem;border-top:1px solid rgba(247,243,236,.1);
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:#5d5548}
+
+.rv{opacity:0;transform:translateY(24px)}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}*{animation-duration:.001s!important;transition-duration:.001s!important}}
+</style>
+</head>
+<body>
+
+<!-- Rasterises the huge display glyphs while the loader is up. Without this the
+     first paint of the stat numerals costs a single ~160ms frame mid-page. -->
+<div id="prewarm" aria-hidden="true">0123456789MB</div>
+
+<div id="loader">
+  <div class="mono" style="color:#8f8574">Loading the film</div>
+  <div class="bar"><i id="lbar"></i></div>
+  <div class="pct" id="lpct">0%</div>
+</div>
+
+<header id="hdr">
+  <a class="brand" href="#top" aria-label="Zetwal AI">
+    <svg viewBox="0 0 1176 1070.49" role="img" aria-label="Zetwal AI">
+      <defs><linearGradient id="zg" x1="251.3" y1="493.28" x2="1173.07" y2="493.28" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f5e484"/><stop offset=".22" stop-color="#e5ab18"/><stop offset=".44" stop-color="#dfbf59"/>
+        <stop offset=".62" stop-color="#e4a712"/><stop offset=".84" stop-color="#f4df79"/><stop offset="1" stop-color="#e6b123"/>
+      </linearGradient></defs>
+      <g fill="currentColor">
+        <path d="M565.52,1069.49c-42.86-.24-91.85-5.39-134.22-12.15-61.48-9.82-121.01-29.27-177.52-54.8,20.25-56.29,50.97-108.2,82.42-158.78,60.88,34.73,132.44,51.25,201.16,63.57,175.39,31.44,366.16,35.91,544.18,33.24,22.88-.34,45.7.33,68.48-.95-4.6,3.64-10.73,6.74-15.96,9.5-136.63,72.05-317.66,119.13-472.62,120.37-5.22.27-10.55.61-15.99,1h-63.95c-5.43-.39-10.76-.73-15.99-1Z"/>
+        <path d="M620.47,307.22l-57.27,37.14c-40.28,27.93-79.66,57.54-114.08,92.56-27.69-15.37-59.55-25.2-90.42-32.31-117.43-27.05-241.32-17.17-358.71,4.5,33.79-34.59,78.15-61.4,122.22-81.09,120.56-53.88,294.86-69.64,423.51-41.47,25.3,5.54,49.85,13.75,74.75,20.68Z"/>
+        <path d="M815.81,780.76c1.3.42,2.16,4.19,2.4,5.59,4.68,27.03,4.82,56.49,9.14,83.77,4.08,7.36,5.75,2.12,6.77-3.1,4.31-21.93,3.32-49.28,8.41-70.52,4.44-18.54,23.76-16.74,39.21-15.73,14.56.95,24.62,4.41,26.36,20.6,2.12,19.71,1.58,40.94,3.13,60.81.37,4.71.28,16.6,6.74,12.25l15.78-88.62c2.32-4.02,7.27-1.08,10.9-1.01,3.38.07,18.82-.87,20.11.9.97,1.33-.59,7.16-.9,9.24-5.39,36.64-14.12,73.73-20.63,110.25-2.79,6.17-8.74,11.43-15.61,12.36-6.28.85-27.56-.34-33.07-2.72-8.24-3.57-11.34-12.37-12.29-20.68-2.62-23.02-1.97-46.81-4.01-69.93-.46-5.16-2.95-6.46-6.85-2.84l-9.42,76.5c-4.62,17.9-16.06,16.4-31.18,16.77-2.19.05-4.41,1.07-7,1.08-9.52.03-19.62-5-22.53-14.53-6.07-38.82-9.28-78.2-14.68-117.18-.33-1.05,1.9-3.26,2.24-3.26,5.18,0,23.72-1.04,26.98,0Z"/>
+        <path d="M445.33,727.95l86.19,21.37c18.1,6.75,20.48,30.09,5.52,41.44l-73.37,42.53,1.65,3.2,57.26,14.67c.69.53.9,1.24,1.02,2.06.28,1.92-5.69,21.23-6.99,24-1.62,3.42-2.42,3.79-6.28,3.25-26.72-9.62-59.02-12.92-85.22-22.74-15.29-5.73-19.26-23.28-7.95-35,23.6-15.18,49.14-27.27,73.1-41.8,3.31-2.01,8.29-4.31,3.65-7.98-6.5-3.1-55.18-13.66-56.81-16.12-1.53-2.29,2.94-17.61,4.04-21.02.76-2.37,1.62-7.16,4.2-7.86Z"/>
+        <path d="M771.2,808.6l-25.83-.85-5.02,65.37c1.21,7.98,21.74,1.86,24.51,6.54,1.1,1.86-.01,26.71-.95,28.05-1.06,1.51-12.34,1.07-15.1.98-5.63-.17-13.41-.54-18.92-1.06-12.54-1.2-20.47-7.44-21.58-20.47l5.83-79.7c-.33-.93-.31-2.45-1.45-2.73-4.78-1.2-11.39-.06-15.85-1.92-1.21-1.74-.49-26.91,1-29.09,2.11-3.1,14.49,2.43,18.11-.87l3.37-33.6c1.43-.99,27.91.16,29.1,1,2.8,1.95-.84,28.83-.92,33.81,1.5,5.73,22.83,2,25.4,5.66,1.2,1.7-.47,28.13-1.7,28.89Z"/>
+        <polygon points="1134.04 732.81 1140.03 914.64 1108.06 914.64 1103.07 732.81 1134.04 732.81"/>
+        <path d="M676.41,852.7c4.95-20.31,11.08-52.95-4.99-69.44-21.88-22.44-75.33-26.71-99.38-6.47-22.48,18.92-32.03,71.61-13.49,95.36,19.95,25.56,72.96,27.96,102.89,29.5l2.94-30.93c-21.07-4.05-44.45-3.7-65.28-8.16-11.23-2.4-20.01-9.45-18.61-21.86l95.91,12ZM586.85,801.09c15.25-16.42,68.08-12.79,65.6,17.64-8.01-1.47-66.9-6.22-68.86-9.08-1.2-1.75,1.86-7.05,3.26-8.56Z"/>
+        <path d="M1089.03,906.19c-.84-28.4,3.22-65.42-1.4-92.51-2.05-12.03-17.32-29.92-30.03-29.92h-76.93c-3.12,0-2.63,13.19-2.54,15.53.08,2.03.86,11.75,1.2,12.79.77,2.33,4.21,2.52,6.29,2.71,19.29,1.73,44.59-2.81,62.93.02,11.26,1.74,11.88,17.78,1.59,20.45-16.3,4.22-40.97-4.23-57.36,3.59-18.7,8.92-20.47,28.81-18.6,47.32,1.27,12.53,13.82,26.69,26.47,28.49h87.93c2.71,0,.5-6.75.45-8.45ZM1057.1,885.66h-47.46c-2.65,0-7.3-6.58-7.43-9.58-.15-3.39,4.47-10.4,7.43-10.4h47.46v19.98Z"/>
+      </g>
+      <path fill="url(#zg)" d="M1137.04,426.09c-11.95-8.37-24.04-16.59-35.97-24.98-16.99-11.95-33.96-24.02-50.96-35.97-25.61-18.01-51.35-35.92-76.93-53.95-11.3-7.96-22.69-15.97-33.62-24.44l28.62-123.42L1007.16,0l-26.46,20.5c-4.63,3.52-9.13,8.41-13.51,11.96-21.68,17.58-43.33,35.37-64.94,52.95-19.99,16.26-40.76,32.57-60.95,48.95-20,16.23-39.76,32.99-59.95,48.95-1.41,1.12-8.59,6.98-9.31,6.87-20.08-12.42-41.15-23.16-61.63-34.84-28.76-16.41-57.29-34.59-86.93-49.95l-106.91-60.93c34.34,70.23,68.64,140.53,102.91,210.79,6.96,14.27,13.45,28.85,20.58,43.04,22.9-9.09,44.98-21.14,68.34-29.05,11.89-4.02,24.42-7.52,36.96-8.5-12.83,6.79-26.08,12.81-38.96,19.49-32.51,16.84-63.27,35.19-93.92,54.95-28.57,18.41-53.27,35.83-79.93,56.95-22.95,18.18-44.81,36.65-65.94,56.95-19.39,18.62-37.4,37.56-54.95,57.95-21.58,25.06-39.57,49.54-57.95,76.93-25.59,38.12-45.5,73.74-63.95,115.89-29.32,67.01-49.64,138.19-56.94,211.31-2.15,21.48-4.45,48.63-3.05,69.97.1,1.46.12,5.28,2.03,5.45.03-1.26.27-2.54.8-3.69,17.43-38.14,36.59-75.24,58.16-111.19,19.45-32.41,40.8-63.97,63.95-93.91,18.14-23.46,37.71-46.27,57.95-67.94,17.34-18.56,36.08-36.95,54.95-53.95,20.11-18.11,41.34-35.65,62.95-51.95,26.16-19.73,54.78-39.16,82.93-55.95,29.61-17.65,62.44-34.88,93.92-48.95,23.83-10.65,49.12-20.87,73.94-28.97,8.14-2.66,18.45-5.96,26.71-7.76,1.01-.22,3.51-1.01,3.25.76-12.83,5.26-24.84,12.35-36.96,18.99-17.46,9.57-34.83,19.39-51.98,29.5,15.8,24.73,33.27,48.33,49.98,72.41,21.27,30.66,42.62,61.3,63.95,91.91,13.24,19.01,25.71,38.64,39.96,56.95,1.96-12.35.65-25.01.97-37.51,1.34-52.22,3.65-104.63,5.08-156.77.7-25.47.08-51.11,1.95-76.48,5.32-.03,10.67.06,15.99,0,6.07-.07,13.21-1,18.48-1h23.98c7.63,0,16.51-.76,24.48-1,26.09-.77,51.45-1.66,77.45-1.98,1.69-.02,4.44.64,5.48-1.02,20.66.6,41.27-1.82,61.95-1,10,.09,21.15-.85,31.49-.98,1.69-.02,4.44.64,5.48-1.02,8.96.08,18.05.35,26.97-.49-12.56-9.75-25.96-18.37-38.96-27.48Z"/>
+    </svg>
+  </a>
+  <nav class="nav mono">
+    <a href="#what">What it does</a><a href="#app">The app</a><a href="#library">Beats</a><a href="#pricing">Pricing</a>
+  </nav>
+  <a class="cta-btn" href="#get">Get the app</a>
+</header>
+
+<div class="readout mono" id="readout">
+  <span id="chname">01 — The Room</span>
+  <span class="track"><i id="chbar"></i></span>
+  <span class="pc" id="chpc">0%</span>
+</div>
+
+<main id="top">
+<section id="film">
+  <div class="stage">
+    <canvas id="frames"></canvas>
+    <div class="vig"></div>
+    <div class="seamfade" id="seamfade"></div>
+    <div class="beats">
+
+      <div class="beat center" data-in="-0.1" data-peak="0" data-out="0.09">
+        <div class="hero-mark">
+          <svg viewBox="0 0 1176 1070.49" aria-hidden="true">
+            <defs><linearGradient id="zg2" x1="251.3" y1="493.28" x2="1173.07" y2="493.28" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#f5e484"/><stop offset=".5" stop-color="#e4a712"/><stop offset="1" stop-color="#f4df79"/>
+            </linearGradient></defs>
+            <path fill="url(#zg2)" d="M1137.04,426.09c-11.95-8.37-24.04-16.59-35.97-24.98-16.99-11.95-33.96-24.02-50.96-35.97-25.61-18.01-51.35-35.92-76.93-53.95-11.3-7.96-22.69-15.97-33.62-24.44l28.62-123.42L1007.16,0l-26.46,20.5c-4.63,3.52-9.13,8.41-13.51,11.96-21.68,17.58-43.33,35.37-64.94,52.95-19.99,16.26-40.76,32.57-60.95,48.95-20,16.23-39.76,32.99-59.95,48.95-1.41,1.12-8.59,6.98-9.31,6.87-20.08-12.42-41.15-23.16-61.63-34.84-28.76-16.41-57.29-34.59-86.93-49.95l-106.91-60.93c34.34,70.23,68.64,140.53,102.91,210.79,6.96,14.27,13.45,28.85,20.58,43.04,22.9-9.09,44.98-21.14,68.34-29.05,11.89-4.02,24.42-7.52,36.96-8.5-12.83,6.79-26.08,12.81-38.96,19.49-32.51,16.84-63.27,35.19-93.92,54.95-28.57,18.41-53.27,35.83-79.93,56.95-22.95,18.18-44.81,36.65-65.94,56.95-19.39,18.62-37.4,37.56-54.95,57.95-21.58,25.06-39.57,49.54-57.95,76.93-25.59,38.12-45.5,73.74-63.95,115.89-29.32,67.01-49.64,138.19-56.94,211.31-2.15,21.48-4.45,48.63-3.05,69.97.1,1.46.12,5.28,2.03,5.45.03-1.26.27-2.54.8-3.69,17.43-38.14,36.59-75.24,58.16-111.19,19.45-32.41,40.8-63.97,63.95-93.91,18.14-23.46,37.71-46.27,57.95-67.94,17.34-18.56,36.08-36.95,54.95-53.95,20.11-18.11,41.34-35.65,62.95-51.95,26.16-19.73,54.78-39.16,82.93-55.95,29.61-17.65,62.44-34.88,93.92-48.95,23.83-10.65,49.12-20.87,73.94-28.97,8.14-2.66,18.45-5.96,26.71-7.76,1.01-.22,3.51-1.01,3.25.76-12.83,5.26-24.84,12.35-36.96,18.99-17.46,9.57-34.83,19.39-51.98,29.5,15.8,24.73,33.27,48.33,49.98,72.41,21.27,30.66,42.62,61.3,63.95,91.91,13.24,19.01,25.71,38.64,39.96,56.95,1.96-12.35.65-25.01.97-37.51,1.34-52.22,3.65-104.63,5.08-156.77.7-25.47.08-51.11,1.95-76.48,5.32-.03,10.67.06,15.99,0,6.07-.07,13.21-1,18.48-1h23.98c7.63,0,16.51-.76,24.48-1,26.09-.77,51.45-1.66,77.45-1.98,1.69-.02,4.44.64,5.48-1.02,20.66.6,41.27-1.82,61.95-1,10,.09,21.15-.85,31.49-.98,1.69-.02,4.44.64,5.48-1.02,8.96.08,18.05.35,26.97-.49-12.56-9.75-25.96-18.37-38.96-27.48Z"/>
+          </svg>
+        </div>
+        <h1 class="huge">The studio<br><span class="gold">in your pocket</span></h1>
+        <p>Scroll.</p>
+      </div>
+
+      <div class="beat" data-in="0.10" data-peak="0.175" data-out="0.27">
+        <span class="mono">Chapter 01 — The Room</span>
+        <h2 class="big">A room like<br>this costs<br><span class="gold">£800 a day</span></h2>
+        <p>Analogue desk. Treated walls. A microphone worth more than your rent. This is what "studio-grade" has always meant — and what it has always cost.</p>
+      </div>
+
+      <div class="beat" data-in="0.28" data-peak="0.375" data-out="0.47">
+        <span class="mono">Chapter 02 — The Desk</span>
+        <h2 class="big">Every fader<br>doing a job<br><span class="gold">you can't hear</span></h2>
+        <p>Noise reduction. Voice isolation. Studio cleanup. Pitch correction. Nine kinds of processing that used to need a hundred channels and someone who knew how to ride them.</p>
+        <div class="powered">
+          <span class="mono">Powered by</span>
+          <svg fill="currentColor" viewBox="0 0 117 15" role="img" aria-label="ElevenLabs"><path d="M41.507 3.698h-2.975l3.595 11.054h3.203l3.595-11.054h-2.976l-2.25 8.327zM0 0h3.079v14.752H0zM6.115 0h3.079v14.752H6.115zM12.23 0h9.112v2.459H15.31V5.97h5.62V8.43h-5.62v3.863h6.033v2.46h-9.111zM23.222 0h2.913v14.752h-2.913zM27.892 9.215c0-4.029 2.004-5.765 5.124-5.765s4.896 1.715 4.896 5.806v.661h-7.148c.103 2.397.826 3.203 2.21 3.203 1.095 0 1.777-.64 1.901-1.756h2.913C37.602 13.802 35.578 15 32.974 15c-3.305 0-5.082-1.756-5.082-5.785m7.148-1.22c-.144-2.024-.847-2.685-2.066-2.685s-1.983.682-2.19 2.686zM49.482 9.215c0-4.029 2.005-5.765 5.124-5.765 3.12 0 4.897 1.715 4.897 5.806v.661h-7.149c.104 2.397.827 3.203 2.211 3.203 1.095 0 1.777-.64 1.9-1.756h2.914C59.193 13.802 57.17 15 54.565 15c-3.306 0-5.083-1.756-5.083-5.785m7.15-1.22c-.145-2.024-.848-2.685-2.067-2.685s-1.983.682-2.19 2.686zM73.304 0h3.079v12.293h5.785v2.46h-8.864z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M82.891 9.215c0-4.215 1.942-5.765 4.442-5.765 1.24 0 2.376.703 2.83 1.447V3.698h2.976v11.054h-2.892V13.45c-.434.868-1.653 1.55-2.996 1.55-2.645 0-4.36-1.694-4.36-5.785m5.207-3.595c1.446 0 2.231 1.095 2.231 3.595s-.785 3.616-2.231 3.616c-1.447 0-2.273-1.116-2.273-3.616s.826-3.595 2.273-3.595M98.284 13.45v1.302H95.39V0h2.913v4.897c.496-.765 1.653-1.447 2.893-1.447 2.438 0 4.38 1.55 4.38 5.765S103.676 15 101.135 15c-1.343 0-2.438-.682-2.851-1.55m2.086-7.81c1.447 0 2.273 1.075 2.273 3.575s-.826 3.616-2.273 3.616c-1.446 0-2.231-1.116-2.231-3.616s.785-3.574 2.231-3.574"/><path d="M106.776 11.467h2.913c.041 1.157.661 1.715 1.756 1.715s1.715-.496 1.715-1.364c0-.785-.475-1.074-1.508-1.322l-.889-.227c-2.52-.64-3.781-1.323-3.781-3.41 0-2.086 1.942-3.409 4.422-3.409s4.359.972 4.442 3.265h-2.913c-.062-1.012-.682-1.446-1.571-1.446s-1.508.434-1.508 1.26c0 .764.496 1.054 1.364 1.26l.909.228c2.397.599 3.905 1.198 3.905 3.43 0 2.23-1.984 3.553-4.67 3.553-2.913 0-4.524-1.095-4.586-3.533M64.214 8.244c0-1.736.826-2.686 2.107-2.686 1.054 0 1.653.661 1.653 2.087v7.107h2.913V7.19c0-2.562-1.446-3.74-3.553-3.74-1.426 0-2.604.724-3.12 1.674V3.698h-2.955v11.054h2.955z"/></svg>
+        </div>
+      </div>
+
+      <div class="beat" data-in="0.48" data-peak="0.60" data-out="0.71">
+        <span class="mono">Chapter 03 — The Fold</span>
+        <h2 class="big">So we folded<br>the whole<br><span class="gold">room up</span></h2>
+        <p>Every surface in here does one thing: shape sound. There is no physical reason any of it has to stay a building.</p>
+      </div>
+
+      <div class="beat" data-in="0.72" data-peak="0.83" data-out="0.90">
+        <span class="mono">Chapter 04 — The Compression</span>
+        <h2 class="big">Down to<br>one slab<br><span class="gold">of light</span></h2>
+        <p>Recording, enhancement, generation, mixing, mastering, export. All of it, compressed.</p>
+      </div>
+
+      <div class="beat" data-in="0.905" data-peak="0.97" data-out="2">
+        <span class="mono">Chapter 05 — The App</span>
+        <h2 class="big">It fits in<br><span class="gold">your hand</span></h2>
+        <p>Zetwal AI. Free on iOS and Android. No equipment. No studio time. No compromise.</p>
+        <div class="chips"><span class="chip">Record</span><span class="chip">Enhance</span><span class="chip">Generate</span><span class="chip">Mix</span><span class="chip">Export</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HARD CUT TO PAPER ============ -->
+<section class="paper" id="what">
+  <div class="wrap paper-inner">
+    <div class="two">
+      <h2 class="huge rv">Every tool<br>a creator<br>needs</h2>
+      <p class="body rv">None of the studio cost. Six pieces of a real recording studio, rebuilt to run on the device already in your pocket — and priced so you only pay when the AI actually runs.</p>
+    </div>
+    <div class="rule"></div>
+
+    <div class="frow rv"><span class="n">01</span><div><h3>Recording Studio</h3><p>Capture vocals, instruments, podcasts and ambient sound with modes engineered for each session type.</p></div><span class="tag">4 modes</span></div>
+    <div class="frow rv"><span class="n">02</span><div><h3>AI Enhancement</h3><p>Noise reduction, voice isolation, studio cleanup and pitch correction in seconds. Powered by ElevenLabs.</p></div><span class="tag">9 types</span></div>
+    <div class="frow rv"><span class="n">03</span><div><h3>Music Generation</h3><p>Describe a vibe, get a beat. Text-to-music writes an original backing track from your prompt.</p></div><span class="tag">Text-to-beat</span></div>
+    <div class="frow rv"><span class="n">04</span><div><h3>Mixing Studio</h3><p>Multi-track mixer with volume, reverb sends, solo and mute, and export — all on the phone.</p></div><span class="tag">Full board</span></div>
+    <div class="frow rv"><span class="n">05</span><div><h3>Beat Library</h3><p>A curated library filtered by genre, tempo and tag. Drop any beat straight into your mix.</p></div><span class="tag">Curated</span></div>
+    <div class="frow rv" style="border-bottom:1px solid rgba(10,8,6,.16)"><span class="n">06</span><div><h3>Credit System</h3><p>Pay for what you use. Buy credit packs outright or subscribe for unlimited AI features.</p></div><span class="tag">No lock-in</span></div>
+
+    <div class="rule"></div>
+    <div class="statgrid">
+      <div class="stat rv"><div class="num" data-count="9">0</div><div class="lbl">AI enhancement types</div></div>
+      <div class="stat rv"><div class="num" data-count="500" data-suffix="MB">0</div><div class="lbl">Max file size</div></div>
+      <div class="stat rv"><div class="num" data-count="3">0</div><div class="lbl">Platforms supported</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE APP ============ -->
+<section class="device-sec" id="app">
+  <div class="wrap device-grid">
+    <div>
+      <span class="mono gold rv">The app</span>
+      <h2 class="big rv" style="margin:1rem 0 1.4rem">Record it rough.<br>Ship it <span class="gold">finished.</span></h2>
+      <p class="rv" style="color:#a89c88;max-width:44ch">Hit record wherever you are. Send the take to AI enhancement. Drop a generated beat under it, ride the levels, export a master. The whole chain, four taps deep.</p>
+      <div class="chips rv" style="margin-top:1.6rem">
+        <span class="chip">Vocal</span><span class="chip">Podcast</span><span class="chip">Instrument</span><span class="chip">Ambient</span>
+      </div>
+    </div>
+    <div class="rv">
+      <div class="phone">
+        <div class="screen">
+          <div class="scr-top"><span class="mono" style="font-size:.45rem;color:#7d7263">REC · 00:42</span><span class="scr-dot"></span></div>
+          <canvas id="uiwave"></canvas>
+          <div class="scr-faders">
+            <div class="fader"><span class="lbl">VOX</span><span class="rail"><i class="fill" style="width:72%"></i><i class="knob" style="left:72%"></i></span></div>
+            <div class="fader"><span class="lbl">BEAT</span><span class="rail"><i class="fill" style="width:54%"></i><i class="knob" style="left:54%"></i></span></div>
+            <div class="fader"><span class="lbl">VERB</span><span class="rail"><i class="fill" style="width:31%"></i><i class="knob" style="left:31%"></i></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">Interface shown is a stylised representation</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BEAT LIBRARY ============ -->
+<section id="library">
+  <div class="libhead wrap">
+    <span class="mono gold rv">Beat library</span>
+    <h2 class="big rv" style="margin-top:.7rem">Filtered by genre,<br>tempo, tag.</h2>
+  </div>
+  <div class="libstage">
+    <div class="libtrack" id="libtrack">
+      <article class="bcard"><div class="wf" data-wf></div><h4>Midnight Lacquer</h4><div class="meta">Neo-soul · 72 BPM · warm</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Static Bloom</h4><div class="meta">Alt R&amp;B · 88 BPM · lush</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Concrete Garden</h4><div class="meta">Boom bap · 94 BPM · gritty</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Low Ceiling</h4><div class="meta">Trap · 140 BPM · dark</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Paper Lantern</h4><div class="meta">Lo-fi · 78 BPM · tape</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Brass Hour</h4><div class="meta">Jazz-hop · 96 BPM · horns</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Signal Fade</h4><div class="meta">Ambient · 60 BPM · drift</div></article>
+      <article class="bcard"><div class="wf" data-wf></div><h4>Night Shift</h4><div class="meta">House · 124 BPM · rolling</div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="paper" id="pricing">
+  <div class="wrap paper-inner">
+    <div class="two" style="margin-bottom:clamp(2.4rem,5vw,4rem)">
+      <h2 class="huge rv">Pay for<br>what you<br>use</h2>
+      <p class="body rv">Recording, mixing and exporting are always free. Credits are only spent when the AI actually runs.</p>
+    </div>
+    <div class="plans">
+      <div class="plan rv"><div class="pn">Starter</div><div class="amt">100 credits</div>
+        <ul><li>Unlimited recording</li><li>Full mixing studio</li><li>Beat library access</li><li>Credits never expire</li></ul></div>
+      <div class="plan hot rv"><div class="pn">Creator · most popular</div><div class="amt">500 / mo</div>
+        <ul><li>Everything in Starter</li><li>All 9 enhancement types</li><li>Text-to-music generation</li><li>Priority processing</li></ul></div>
+      <div class="plan rv"><div class="pn">Studio</div><div class="amt">Unlimited</div>
+        <ul><li>Everything in Creator</li><li>Unlimited AI features</li><li>500MB per file</li><li>Early access to new models</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="endcta" id="get">
+  <div class="wrap">
+    <h2 class="huge rv">Your studio.<br><span class="gold">Your rules.</span></h2>
+    <p class="rv" style="color:#a89c88;margin-top:1.4rem">Free on iOS and Android. No equipment. No studio time.</p>
+    <div class="stores rv">
+      <a class="store" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.61-1.7-3.18-1.72-1.35-.14-2.64.79-3.33.79-.69 0-1.75-.77-2.87-.75-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.71.71 2.87.69 1.19-.02 1.94-1.08 2.66-2.14.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.34-3.51zM14.9 5.9c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.05 1.69-.92 2.68.97.08 1.96-.49 2.58-1.21z"/></svg>
+        <div><div class="s1">Download on the</div><div class="s2">App Store</div></div>
+      </a>
+      <a class="store" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.244 2.368C7.414 1.184 5 2.497 5 4.676v14.648c0 2.18 2.414 3.493 4.244 2.309l11.318-7.324c1.675-1.084 1.675-3.534 0-4.618z"/></svg>
+        <div><div class="s1">Get it on</div><div class="s2">Google Play</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fcol" style="max-width:300px">
+        <h5>Zetwal AI</h5>
+        <p style="font-size:.88rem;color:#8f8574">Studio-grade audio in your pocket. Record, enhance and mix with AI.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2C0 8.08 0 12 0 12s0 3.92.5 5.8a3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14C24 15.92 24 12 24 12s0-3.92-.5-5.8M9.55 15.57V8.43L15.82 12z"/></svg></a>
+          <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5 2.59 2.59 0 1 1 .76-5.06V9.66a5.66 5.66 0 0 0-.76-.05A5.7 5.7 0 1 0 15.54 15.3V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.28 4.28 0 0 1-3.24-1.48"/></svg></a>
+        </div>
+      </div>
+      <div class="fcol"><h5>Product</h5><a href="#what">Features</a><a href="#app">The app</a><a href="#library">Beat library</a><a href="#pricing">Pricing</a></div>
+      <div class="fcol"><h5>Company</h5><a href="#">About</a><a href="#">Contact</a><a href="#">Support</a></div>
+      <div class="fcol"><h5>Legal</h5><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Licences</a></div>
+    </div>
+    <div class="fbot mono">
+      <span>© 2026 Zetwal AI</span>
+      <span>AI enhancement powered by ElevenLabs</span>
+    </div>
+  </div>
+</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* 1080p master — 5 chained Seedance clips, 601 frames, every 2nd extracted */
+const FRAMES_DIR  = 'zetwal-film/frames';
+const FRAME_COUNT = 301;
+
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const JUMP = new URLSearchParams(location.search).get("jump");
+if (JUMP !== null && "scrollRestoration" in history) history.scrollRestoration = "manual";
+
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const ramp=(v,a,b)=>clamp((v-a)/(b-a),0,1);
+const mix=(a,b,t)=>a+(b-a)*t;
+const pad=n=>String(n).padStart(4,"0");
+const src=i=>`${FRAMES_DIR}/f_${pad(i+1)}.jpg`;
+
+/* ================= frame loading ================= */
+const images=new Array(FRAME_COUNT);
+let loaded=0;
+const lbar=document.getElementById("lbar"), lpct=document.getElementById("lpct"), loaderEl=document.getElementById("loader");
+
+function pump(concurrency){
+  let next=0, active=0;
+  return new Promise(resolve=>{
+    const step=()=>{
+      while(active<concurrency && next<FRAME_COUNT){
+        const i=next++; active++;
+        const img=new Image();
+        img.decoding="async";
+        img.onload=img.onerror=()=>{
+          images[i]=img.naturalWidth?img:null;
+          loaded++; active--;
+          const p=loaded/FRAME_COUNT;
+          lbar.style.width=(p*100)+"%";
+          lpct.textContent=Math.round(p*100)+"%";
+          if(loaded===FRAME_COUNT) resolve(); else step();
+        };
+        img.src=src(i);
+      }
+    };
+    step();
+  });
+}
+
+/* nearest loaded frame — a missing file must never blank the canvas */
+function nearestFrame(idx){
+  if(images[idx]) return images[idx];
+  for(let d=1;d<FRAME_COUNT;d++){
+    if(images[idx-d]) return images[idx-d];
+    if(images[idx+d]) return images[idx+d];
+  }
+  return null;
+}
+
+/* ============ decode-ahead window ============
+   Measured on this footage (1280x734):
+     createImageBitmap ...... 8.78 ms/frame
+     first blit (GPU upload) . 4.06 ms/frame
+     blit from <img> ......... 0.00 ms/frame
+   An ImageBitmap window costs ~12.8ms per newly-crossed frame, and the playhead
+   crosses roughly one frame per rAF — that was the entire scrub jank. It is the
+   right tool when frames stream in lazily, but every frame here is preloaded and
+   already decoded by the browser, so blitting the <img> directly is free.
+   img.decode() keeps the window warm against cache eviction without allocating a
+   second decoded copy the way createImageBitmap does. */
+const decoded=new Set();
+const D_BACK=8, D_AHEAD=26;
+let decCenter=-999, displayed=-1;
+
+function ensureDecoded(center){
+  if(Math.abs(center-decCenter)<4) return;
+  decCenter=center;
+  const lo=Math.max(0,center-D_BACK), hi=Math.min(FRAME_COUNT-1,center+D_AHEAD);
+  for(let i=lo;i<=hi;i++){
+    const im=images[i];
+    if(!im||decoded.has(i)) continue;
+    decoded.add(i);
+    if(im.decode) im.decode().catch(()=>decoded.delete(i));
+  }
+}
+
+/* ================= canvas ================= */
+const cv=document.getElementById("frames");
+const ctx=cv.getContext("2d",{alpha:false});
+let W=0,H=0,DPR=1;
+function resize(){
+  /* The frames are 1280px wide. Backing the canvas at more pixels than the
+     source contains buys zero detail and costs real fill every frame — at DPR
+     1.5 on a 1440 viewport that was a 2160px surface upscaling a 1280px JPEG
+     1.8x, ~34 frames/scroll over 50ms. Cap the surface near the source width. */
+  const SRC_W=1280;
+  W=cv.clientWidth; H=cv.clientHeight;
+  DPR=Math.min(devicePixelRatio||1, 1.5, Math.max(1, SRC_W*1.25/Math.max(1,W)));
+  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if(displayed>=0) drawFrame(displayed,true);
+}
+
+function drawFrame(idx,force){
+  if(!force && idx===displayed) return;      // same frame: repeat blit is wasted fill
+  const srcImg=images[idx]||nearestFrame(idx);
+  if(!srcImg) return;
+  displayed=idx;
+  const iw=srcImg.width, ih=srcImg.height;
+  const scale=Math.max(W/iw,H/ih);            // cover-fit
+  const dw=iw*scale, dh=ih*scale;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle="#0a0806"; ctx.fillRect(0,0,W,H);
+  ctx.drawImage(srcImg,(W-dw)/2,(H-dh)/2,dw,dh);
+}
+
+/* ================= film progress ================= */
+const filmEl=document.getElementById("film");
+const seamfade=document.getElementById("seamfade");
+const readout=document.getElementById("readout");
+const chName=document.getElementById("chname"), chBar=document.getElementById("chbar"), chPc=document.getElementById("chpc");
+const hdr=document.getElementById("hdr");
+const beatEls=[...document.querySelectorAll(".beat")].map(el=>({el,in:+el.dataset.in,peak:+el.dataset.peak,out:+el.dataset.out}));
+const CHAPTERS=[[0,"01 — The Room"],[0.28,"02 — The Desk"],[0.48,"03 — The Fold"],[0.72,"04 — The Compression"],[0.905,"05 — The App"]];
+
+let targetF=0, curF=0;
+function filmProgress(){
+  const r=filmEl.getBoundingClientRect();
+  const d=r.height-innerHeight;
+  return d<=0?0:clamp(-r.top/d,0,1);
+}
+
+function beatAlpha(b,p){
+  if(p<b.in||p>b.out) return 0;
+  if(p<b.peak) return ramp(p,b.in,b.peak);
+  if(b.out>1.5) return 1;
+  return 1-ramp(p,b.peak,b.out);
+}
+
+/* ---- adaptive header ----
+   Sampling the live canvas with getImageData every 180ms forces a GPU->CPU
+   readback, which stalls the pipeline: it drove p95 to ~60ms for the whole film
+   and nowhere else. The luminance of each frame's top strip is fixed data, so
+   compute it once per frame at load and make the scroll path a pure lookup. */
+const lumCache=new Float32Array(FRAME_COUNT).fill(-1);
+const probe=document.createElement("canvas"); probe.width=16; probe.height=4;
+const pctx=probe.getContext("2d",{willReadFrequently:true});
+
+function measureLum(img){
+  try{
+    pctx.drawImage(img,0,0,img.width,Math.max(1,Math.round(img.height*0.14)),0,0,16,4);
+    const d=pctx.getImageData(0,0,16,4).data;
+    let lum=0;
+    for(let i=0;i<d.length;i+=4) lum+=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];
+    return lum/(d.length/4);
+  }catch(e){ return -1; }
+}
+
+async function buildLumCache(){
+  for(let i=0;i<FRAME_COUNT;i++){
+    if(images[i]) lumCache[i]=measureLum(images[i]);
+    if((i&31)===31) await new Promise(r=>setTimeout(r,0));   // yield, keep the loader alive
+  }
+}
+
+function adaptHeader(idx){
+  const l=lumCache[idx];
+  if(l>=0) hdr.classList.toggle("on-light",l>138);
+}
+
+function paint(t){
+  const r=filmEl.getBoundingClientRect();
+  if(r.bottom<0||r.top>innerHeight){                 // film off-screen: draw nothing
+    if(readout.style.opacity!=="0") readout.style.opacity=0;
+    return;
+  }
+  const p=curF/(FRAME_COUNT-1);
+  const idx=Math.round(curF);
+  ensureDecoded(idx);
+  drawFrame(idx);
+  adaptHeader(idx);
+
+  for(const b of beatEls){
+    const a=beatAlpha(b,p);
+    b.el.style.opacity=a;
+    const dy=(1-a)*20*(p<b.peak?1:-1);
+    /* under 860px the non-centre beats are bottom-anchored, so they must not be
+       pulled up by -50% there or they land back on top of the film */
+    b.el.style.transform=b.el.classList.contains("center")
+      ? `translate(-50%,calc(-50% + ${dy}px))`
+      : (innerWidth<=860 ? `translate(0,${dy}px)` : `translate(0,calc(-50% + ${dy}px))`);
+  }
+
+  let nm=CHAPTERS[0][1];
+  for(const c of CHAPTERS) if(p>=c[0]) nm=c[1];
+  chName.textContent=nm;
+  chBar.style.width=(p*100).toFixed(1)+"%";
+  chPc.textContent=Math.round(p*100)+"%";
+  readout.style.opacity=(p>0.02&&p<0.99)?1:0;
+  seamfade.style.opacity=ramp(p,0.93,1);
+}
+
+function tick(t){
+  targetF=filmProgress()*(FRAME_COUNT-1);
+  curF += (targetF-curF)*(REDUCED?1:0.14);          // lerped playhead — the butter
+  if(Math.abs(targetF-curF)<0.01) curF=targetF;
+  paint(t);
+  requestAnimationFrame(tick);
+}
+
+/* ================= smooth scroll ================= */
+let lenis=null;
+if(!REDUCED && JUMP===null && window.Lenis){
+  lenis=new Lenis({lerp:0.09,smoothWheel:true});
+  lenis.on("scroll",()=>{ if(window.ScrollTrigger) ScrollTrigger.update(); });
+  gsap.ticker.add(tm=>lenis.raf(tm*1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* PINNED FIRST — creation order is refresh order. An ambient trigger created
+   before a pin computes its position without the pin spacer and lands wrong. */
+let libAnim=null;
+const libtrack=document.getElementById("libtrack");
+if(libtrack&&!REDUCED){
+  libAnim=gsap.to(libtrack,{
+    x:()=>-(libtrack.scrollWidth-innerWidth), ease:"none",
+    scrollTrigger:{trigger:"#library",start:"top top",
+      end:()=>"+="+(libtrack.scrollWidth-innerWidth),
+      pin:true,scrub:true,invalidateOnRefresh:true,anticipatePin:1}
+  });
+}
+
+/* ambient / reveals — after the pin */
+gsap.utils.toArray(".rv").forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:.95,ease:"power3.out",
+    scrollTrigger:{trigger:el,start:"top 88%",once:true}});
+});
+document.querySelectorAll("[data-count]").forEach(el=>{
+  const to=+el.dataset.count, suf=el.dataset.suffix||"", o={v:0};
+  gsap.to(o,{v:to,duration:1.8,ease:"power2.out",
+    scrollTrigger:{trigger:el,start:"top 88%",once:true},
+    onUpdate(){el.textContent=Math.round(o.v)+suf;}});
+});
+
+/* beat-card mini waveforms */
+function mulberry(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+document.querySelectorAll("[data-wf]").forEach((el,ci)=>{
+  const r=mulberry(900+ci*53); let h="";
+  for(let i=0;i<30;i++) h+=`<i style="height:${Math.round(14+Math.abs(Math.sin(i*.6+ci))*62*(.45+.55*r()))}%"></i>`;
+  el.innerHTML=h;
+});
+
+/* the in-page app waveform — only animates while it is actually on screen,
+   otherwise it redraws 52 bars every frame for the entire life of the page */
+(function uiWave(){
+  const c=document.getElementById("uiwave"); if(!c) return;
+  const g=c.getContext("2d"); const r=mulberry(4242);
+  const bars=Array.from({length:52},(_,i)=>({a:.18+Math.abs(Math.sin(i*.42))*.62*(.5+.5*r()),ph:r()*6.28}));
+  let live=false, raf=0;
+  function frame(t){
+    const w=c.clientWidth,h=c.clientHeight;
+    if(c.width!==w*2){c.width=w*2;c.height=h*2;}
+    g.setTransform(2,0,0,2,0,0); g.clearRect(0,0,w,h);
+    const cy=h/2, bw=w/bars.length;
+    bars.forEach((b,i)=>{
+      const amp=b.a*(REDUCED?1:(.72+.28*Math.sin(t*.0022+b.ph)));
+      const bh=amp*h*.4;
+      g.fillStyle=i%7===0?"#f6d99e":"#e9a63c";
+      g.fillRect(i*bw+bw*.22,cy-bh,bw*.52,bh*2);
+    });
+    if(live) raf=requestAnimationFrame(frame);
+  }
+  new IntersectionObserver(es=>{
+    const vis=es[0].isIntersecting;
+    if(vis&&!live){ live=true; raf=requestAnimationFrame(frame); }
+    else if(!vis&&live){ live=false; cancelAnimationFrame(raf); }
+  },{rootMargin:"120px"}).observe(c);
+})();
+
+/* ================= dev contract ================= */
+function settle(){
+  ScrollTrigger.refresh();
+  if(JUMP!==null){
+    const y=+JUMP||0;
+    if(lenis) lenis.scrollTo(y,{immediate:true});
+    window.scrollTo(0,y);
+    ScrollTrigger.update();
+    if(libAnim&&libAnim.scrollTrigger){
+      const st=libAnim.scrollTrigger;
+      libAnim.progress(clamp((y-st.start)/(st.end-st.start),0,1));
+    }
+    targetF=filmProgress()*(FRAME_COUNT-1);
+    curF=targetF;                                   // force-settle: no lerp residue
+    ensureDecoded(Math.round(curF));
+  }
+  window.__ready=true;
+}
+
+addEventListener("resize",()=>{resize();ScrollTrigger.refresh();});
+resize();
+
+pump(10).then(async ()=>{
+  await buildLumCache();
+  /* pre-warm bitmaps around the landing frame before revealing anything */
+  const seed=JUMP!==null?Math.round(filmProgress()*(FRAME_COUNT-1)):0;
+  ensureDecoded(seed);
+  await new Promise(r=>setTimeout(r,220));
+  drawFrame(seed);
+  loaderEl.classList.add("done");
+  requestAnimationFrame(tick);
+  if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+  requestAnimationFrame(()=>requestAnimationFrame(settle));
+});
+})();
+</script>
+</body>
+</html>

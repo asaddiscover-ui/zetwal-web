@@ -1,0 +1,28 @@
+# Generated film source — the raw Seedance clips, keyframes and encoded masters.
+# ~108MB and NOT needed to run the site: the page only ever reads the extracted
+# JPEG sequence in zetwal-film/frames/. Keep these locally as the negatives.
+zetwal-film/assets/
+
+# The 480p draft frame sequence, superseded by the 1080p master in frames/.
+zetwal-film/frames-draft/
+
+# Archive of the whole project — never belongs in version control.
+*.zip
+
+# Previous design iteration, kept locally for reference.
+_archive/
+
+# Machine-local Claude Code permissions — references local paths, not shared config.
+.claude/settings.local.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Vercel
+.vercel/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
